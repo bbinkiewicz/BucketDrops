@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="22dp"
+    android:background="@drawable/row_drop_bg_color"
+    android:orientation="horizontal"
+    >
+
+    <ImageView
+        android:layout_width="12dp"
+        android:layout_height="12dp"
+        android:background="@null"
+        android:src="@drawable/ic_drop" />
+
+    <TextView
+        android:id="@+id/tv_what_row"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:paddingLeft="22dp"
+        android:paddingRight="22dp"
+        android:textColor="#fff" />
+
+    <TextView
+        android:id="@+id/tv_when_row"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+</LinearLayout>

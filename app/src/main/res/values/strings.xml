@@ -1,6 +1,9 @@
 <resources>
     <string name="app_name">BucketDrops</string>
-    <string name="btn_add_a_drop">Add a Drop</string>
+    <string name="add_a_drop">Add a Drop</string>
     <string name="app_logo">application logo</string>
     <string name="iv_bg_description">background</string>
+    <string name="et_dialog_hint">What is this?</string>
+    <string name="add_it">Add It</string>
+    <string name="close_mark">close mark</string>
 </resources>

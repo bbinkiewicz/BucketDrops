@@ -1,24 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/activity_main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
     tools:context="com.example.pc.bucketdrops.ActivityMain">
 
 
-    <include
-        android:id="@+id/toolbar"
-        layout="@layout/toolbar"/>
 
     <ImageView
         android:contentDescription="@string/iv_bg_description"
         android:id="@+id/iv_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
         />
 
-    <include layout="@layout/empty_drops"/>
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar"
+        />
+
+
+
+<com.example.pc.bucketdrops.widgets.BucketRecyclerView
+        android:id="@+id/rv_drops"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/toolbar"
+
+       />
+
+    <include
+        android:id="@+id/empty_drops"
+        layout="@layout/empty_drops"/>
+
 </RelativeLayout>
