@@ -11,9 +11,11 @@ import android.widget.Toolbar;
 import com.bumptech.glide.Glide;
 import com.example.pc.bucketdrops.adapters.AdapterClass;
 import com.example.pc.bucketdrops.adapters.Divider;
+import com.example.pc.bucketdrops.adapters.MarkListener;
 import com.example.pc.bucketdrops.adapters.SimpleTouchCallback;
 import com.example.pc.bucketdrops.beans.Drop;
 import com.example.pc.bucketdrops.widgets.BucketRecyclerView;
+import com.example.pc.bucketdrops.widgets.DialogMark;
 
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
@@ -28,6 +30,22 @@ public class ActivityMain extends AppCompatActivity {
     View mEmptyView;
     SimpleTouchCallback mCallback;
 
+    private MarkListener mMarkListener = new MarkListener() {
+        @Override
+        public void showDialogMark(int position) {
+
+            DialogMark dialog = new DialogMark();
+            Bundle bundle = new Bundle();
+            bundle.putInt("position", position);
+
+            dialog.setArguments(bundle);
+            dialog.show(getFragmentManager(), "Add");
+
+
+
+        }
+    };
+
     private RealmChangeListener callback = new RealmChangeListener() {
         @Override
         public void onChange(Object element) {
@@ -37,6 +55,8 @@ public class ActivityMain extends AppCompatActivity {
             }
         }
     };
+
+
 
 
 
@@ -55,6 +75,7 @@ public class ActivityMain extends AppCompatActivity {
         mEmptyView = findViewById(R.id.empty_drops);
 
 
+
         //recyclerView
 
         mRecycler = (BucketRecyclerView) findViewById(R.id.rv_drops);
@@ -62,7 +83,7 @@ public class ActivityMain extends AppCompatActivity {
         mRecycler.showIfEmpty(mEmptyView);
         mRecycler.addItemDecoration(new Divider(this, LinearLayoutManager.VERTICAL));
 
-            adapter = new AdapterClass(this, mRealm, mResult);
+            adapter = new AdapterClass(this, mRealm, mResult, mMarkListener);
             mRecycler.setAdapter(adapter);
             LinearLayoutManager manager = new LinearLayoutManager(this);
             mRecycler.setLayoutManager(manager);
@@ -71,14 +92,6 @@ public class ActivityMain extends AppCompatActivity {
         mCallback = new SimpleTouchCallback(adapter);
         ItemTouchHelper helper = new ItemTouchHelper(mCallback);
         helper.attachToRecyclerView(mRecycler);
-
-
-
-
-
-
-
-
 
     }
 
@@ -92,6 +105,14 @@ public class ActivityMain extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         mResult.removeAllChangeListeners();
+
+    }
+
+    public void showDialogAdd(View view) {
+
+        DialogAdd dialog = new DialogAdd();
+        dialog.show(getFragmentManager(), "Add");
+
     }
 
     private void initBackgroundImage(){
@@ -99,14 +120,5 @@ public class ActivityMain extends AppCompatActivity {
         ImageView background = (ImageView) findViewById(R.id.iv_background);
         Glide.with(this).load(R.drawable.background).centerCrop().into(background);
     }
-
-    public void showDialogAdd(View view){
-
-       DialogAdd dialog = new DialogAdd();
-        dialog.show(getFragmentManager(), "Add");
-
-    }
-
-
 
 }

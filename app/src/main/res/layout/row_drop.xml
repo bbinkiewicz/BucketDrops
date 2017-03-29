@@ -5,6 +5,7 @@
     android:padding="22dp"
     android:background="@drawable/row_drop_bg_color"
     android:orientation="horizontal"
+
     >
 
     <ImageView

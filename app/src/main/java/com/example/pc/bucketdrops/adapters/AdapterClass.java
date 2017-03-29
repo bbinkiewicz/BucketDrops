@@ -2,6 +2,7 @@ package com.example.pc.bucketdrops.adapters;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -10,6 +11,8 @@ import android.widget.TextView;
 
 import com.example.pc.bucketdrops.R;
 import com.example.pc.bucketdrops.beans.Drop;
+
+import java.util.Locale;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -24,12 +27,24 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private Realm mRealm;
     private LayoutInflater mInflater;
     private RealmResults<Drop> mResult;
+    private MarkListener mMarkListener;
+
 
 
 
     public AdapterClass(Context context, Realm realm, RealmResults<Drop> result) {
         mInflater = LayoutInflater.from(context);
         mRealm = realm;
+        update(result);
+
+
+
+    }
+
+    public AdapterClass(Context context, Realm realm, RealmResults<Drop> result, MarkListener markListener) {
+        mInflater = LayoutInflater.from(context);
+        mRealm = realm;
+        mMarkListener = markListener;
         update(result);
 
     }
@@ -59,15 +74,16 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         RecyclerView.ViewHolder holder;
 
 
+
+
         if (viewType == ITEM) {
-            holder = new DropHolder(mInflater.inflate(R.layout.row_drop, parent, false));
+            holder = new DropHolder(mInflater.inflate(R.layout.row_drop, parent, false), mMarkListener, mRealm, mResult);
         }
         else {
             holder = new FooterHolder(mInflater.inflate(R.layout.footer, parent, false));
         }
 
         return holder;
-
 
     }
 
@@ -78,7 +94,10 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
             Drop drop = mResult.get(position);
             ((DropHolder)holder).mTextWhat.setText(drop.getGoal());
+
+
         }
+
 
     }
 
@@ -95,19 +114,51 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onSwipe(int position) {
 
-        mRealm.beginTransaction();
-        mResult.get(position).deleteFromRealm();
-        mRealm.commitTransaction();
-        notifyItemRemoved(position);
+        if (position<mResult.size()) {
+            mRealm.beginTransaction();
+            mResult.get(position).deleteFromRealm();
+            mRealm.commitTransaction();
+            notifyItemRemoved(position);
+        }
 
     }
 
+
+
     private static class DropHolder extends RecyclerView.ViewHolder {
 
+        Realm mRealm;
+        RealmResults mRealmResults;
+
         TextView mTextWhat;
-        private DropHolder(View itemView) {
+        private DropHolder(View itemView, final MarkListener markListener, Realm realm, RealmResults realmResults) {
             super(itemView);
+            mRealm = realm;
+            mRealmResults = realmResults;
             mTextWhat = (TextView) itemView.findViewById(R.id.tv_what_row);
+            itemView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+
+                    Drop drop = (Drop) mRealmResults.get(getAdapterPosition());
+                    Log.d("isCompleted", String.format(Locale.ENGLISH, "before: %b", drop.isCompleted()));
+                    markListener.showDialogMark(getAdapterPosition());
+                    markAsCompleted(drop);
+                    Log.d("isCompleted", String.format(Locale.ENGLISH, "after: %b", drop.isCompleted()));
+
+                }
+            });
+
+
+        }
+
+        private void markAsCompleted(Drop drop) {
+
+            mRealm.beginTransaction();
+            drop.setCompleted(true);
+            mRealm.copyToRealmOrUpdate(drop);
+            mRealm.commitTransaction();
+
         }
     }
 

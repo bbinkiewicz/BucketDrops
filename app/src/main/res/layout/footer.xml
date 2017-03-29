@@ -11,7 +11,6 @@
     android:text="@string/add_a_drop"
     android:textSize="@dimen/btn_add_drop_text_size"
     android:textAllCaps="false"
-    android:onClick="showDialogAdd"
-    >
+    android:onClick="showDialogAdd"    >
 
 </Button>

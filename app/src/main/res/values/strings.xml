@@ -6,4 +6,5 @@
     <string name="et_dialog_hint">What is this?</string>
     <string name="add_it">Add It</string>
     <string name="close_mark">close mark</string>
+    <string name="mark_completed">Mark Completed</string>
 </resources>

@@ -48,7 +48,12 @@ public class BucketRecyclerView extends RecyclerView{
         public void onItemRangeMoved(int fromPosition, int toPosition, int itemCount) {
             toggleViews();
         }
+
+
+
     };
+
+
 
     private void toggleViews() {
 
@@ -98,6 +103,7 @@ public class BucketRecyclerView extends RecyclerView{
             adapter.registerAdapterDataObserver(mObserver);
         }
         mObserver.onChanged();
+
     }
 
     public void hideIfEmpty(View ...views) {
