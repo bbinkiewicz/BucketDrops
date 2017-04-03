@@ -1,8 +1,8 @@
 package com.example.pc.bucketdrops.adapters;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -11,8 +11,6 @@ import android.widget.TextView;
 
 import com.example.pc.bucketdrops.R;
 import com.example.pc.bucketdrops.beans.Drop;
-
-import java.util.Locale;
 
 import io.realm.Realm;
 import io.realm.RealmResults;
@@ -91,9 +89,14 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
         if(holder instanceof DropHolder) {
-
+            
+            DropHolder dropHolder = (DropHolder) holder;
             Drop drop = mResult.get(position);
-            ((DropHolder)holder).mTextWhat.setText(drop.getGoal());
+            
+            dropHolder.setWhat(drop.getGoal());
+            dropHolder.setBackground(drop.isCompleted());
+
+           
 
 
         }
@@ -129,44 +132,57 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         Realm mRealm;
         RealmResults mRealmResults;
+        Context mContext;
 
         TextView mTextWhat;
-        private DropHolder(View itemView, final MarkListener markListener, Realm realm, RealmResults realmResults) {
+
+        public DropHolder(View itemView, final MarkListener markListener, Realm realm, RealmResults realmResults) {
             super(itemView);
+            mTextWhat = (TextView) itemView.findViewById(R.id.tv_what_row);
+            mContext = itemView.getContext();
             mRealm = realm;
             mRealmResults = realmResults;
-            mTextWhat = (TextView) itemView.findViewById(R.id.tv_what_row);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
 
                     Drop drop = (Drop) mRealmResults.get(getAdapterPosition());
-                    Log.d("isCompleted", String.format(Locale.ENGLISH, "before: %b", drop.isCompleted()));
-                    markListener.showDialogMark(getAdapterPosition());
-                    markAsCompleted(drop);
-                    Log.d("isCompleted", String.format(Locale.ENGLISH, "after: %b", drop.isCompleted()));
+                    markListener.showDialogMark(drop);
 
                 }
             });
 
+        }
+
+        private void setWhat(String text){
+            mTextWhat.setText(text);
+        }
+
+        private void setBackground(boolean isCompleted){
+
+            Drawable background;
+
+            if(isCompleted){
+                background = mContext.getDrawable(R.color.row_bg_completed);
+            }
+
+            else{
+                background = mContext.getDrawable(R.drawable.row_drop_bg_color);
+            }
+
+            itemView.setBackground(background);
+
 
         }
 
-        private void markAsCompleted(Drop drop) {
-
-            mRealm.beginTransaction();
-            drop.setCompleted(true);
-            mRealm.copyToRealmOrUpdate(drop);
-            mRealm.commitTransaction();
-
-        }
+        
     }
 
     private static class FooterHolder extends RecyclerView.ViewHolder {
 
         Button footerButton;
 
-        private FooterHolder(View itemView) {
+       private FooterHolder(View itemView) {
             super(itemView);
             footerButton = (Button) itemView.findViewById(R.id.btn_footer);
 

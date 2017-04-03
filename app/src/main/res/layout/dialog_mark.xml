@@ -22,7 +22,8 @@
         android:drawablePadding="12dp"
         android:textSize="23sp"
         android:layout_marginTop="100dp"
-        android:background="@null"
+        android:layout_marginBottom="100dp"
+        android:background="@drawable/btn_mark_completed_bg_color"
         android:layout_below="@id/dialog_mark_close"
         android:layout_centerInParent="true"
         android:text="@string/mark_completed"/>

@@ -1,11 +1,13 @@
 package com.example.pc.bucketdrops.beans;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 
 
 
-public class Drop extends RealmObject{
+public class Drop extends RealmObject implements Serializable{
 
     @PrimaryKey
     private long addTime;

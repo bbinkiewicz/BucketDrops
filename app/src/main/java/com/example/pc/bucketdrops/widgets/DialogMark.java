@@ -8,9 +8,11 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.Toast;
 
 import com.example.pc.bucketdrops.R;
+import com.example.pc.bucketdrops.beans.Drop;
+
+import io.realm.Realm;
 
 
 public class DialogMark extends DialogFragment {
@@ -18,14 +20,25 @@ public class DialogMark extends DialogFragment {
 
     private ImageButton mBtnClose;
     private Button mBtnCompleted;
+    private Realm mRealm = Realm.getDefaultInstance();
 
     private View.OnClickListener mBtnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
 
-            switch (getView().getId()){
+            switch (v.getId()){
 
                 case R.id.dialog_mark_btn:
+
+                    Bundle bundle = getArguments();
+
+                    if(bundle.containsKey("drop")) {
+                        Drop drop = (Drop) getArguments().get("drop");
+
+                        if(drop != null) {
+                            markAsCompleted(drop);
+                        }
+                    }
                     break;
 
 
@@ -36,7 +49,14 @@ public class DialogMark extends DialogFragment {
         }
     };
 
+    private void markAsCompleted(Drop drop) {
 
+        mRealm.beginTransaction();
+        drop.setCompleted(true);
+        mRealm.copyToRealmOrUpdate(drop);
+        mRealm.commitTransaction();
+
+    }
 
     @Nullable
     @Override
@@ -52,13 +72,6 @@ public class DialogMark extends DialogFragment {
         mBtnClose = (ImageButton) view.findViewById(R.id.dialog_mark_close);
         mBtnCompleted = (Button) view.findViewById(R.id.dialog_mark_btn);
 
-        if (!getArguments().isEmpty() && getArguments() != null) {
-
-            if (getArguments().containsKey("position")) {
-                int position = this.getArguments().getInt("position");
-                Toast.makeText(getActivity(), position + "", Toast.LENGTH_SHORT).show();
-            }
-        }
         mBtnCompleted.setOnClickListener(mBtnClickListener);
         mBtnClose.setOnClickListener(mBtnClickListener);
 

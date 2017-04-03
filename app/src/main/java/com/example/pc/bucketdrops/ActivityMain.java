@@ -32,16 +32,15 @@ public class ActivityMain extends AppCompatActivity {
 
     private MarkListener mMarkListener = new MarkListener() {
         @Override
-        public void showDialogMark(int position) {
+        public void showDialogMark(Drop drop) {
 
             DialogMark dialog = new DialogMark();
             Bundle bundle = new Bundle();
-            bundle.putInt("position", position);
+            bundle.putSerializable("drop", drop);
+
 
             dialog.setArguments(bundle);
-            dialog.show(getFragmentManager(), "Add");
-
-
+            dialog.show(getFragmentManager(), "show");
 
         }
     };
