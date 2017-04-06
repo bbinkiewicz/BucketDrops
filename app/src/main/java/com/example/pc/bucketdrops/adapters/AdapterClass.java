@@ -3,6 +3,7 @@ package com.example.pc.bucketdrops.adapters;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.support.v7.widget.RecyclerView;
+import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,14 +29,11 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     private MarkListener mMarkListener;
 
 
-
-
     public AdapterClass(Context context, Realm realm, RealmResults<Drop> result) {
+
         mInflater = LayoutInflater.from(context);
         mRealm = realm;
         update(result);
-
-
 
     }
 
@@ -47,20 +45,19 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
     }
 
-    public void update(RealmResults<Drop> result){
+    public void update(RealmResults<Drop> result) {
 
-            mResult = result;
-            notifyDataSetChanged();
+        mResult = result;
+        notifyDataSetChanged();
 
     }
 
     @Override
     public int getItemViewType(int position) {
 
-        if (mResult == null || position < mResult.size()){
+        if (mResult == null || position < mResult.size()) {
             return ITEM;
-        }
-        else
+        } else
             return FOOTER;
 
     }
@@ -72,12 +69,9 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         RecyclerView.ViewHolder holder;
 
 
-
-
         if (viewType == ITEM) {
             holder = new DropHolder(mInflater.inflate(R.layout.row_drop, parent, false), mMarkListener, mRealm, mResult);
-        }
-        else {
+        } else {
             holder = new FooterHolder(mInflater.inflate(R.layout.footer, parent, false));
         }
 
@@ -88,36 +82,30 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
 
-        if(holder instanceof DropHolder) {
-            
+        if (holder instanceof DropHolder) {
+
             DropHolder dropHolder = (DropHolder) holder;
             Drop drop = mResult.get(position);
-            
             dropHolder.setWhat(drop.getGoal());
+            dropHolder.setWhen(drop.getWhen());
             dropHolder.setBackground(drop.isCompleted());
-
-           
-
-
         }
-
-
     }
 
     @Override
     //+1 because of footer
     public int getItemCount() {
 
-        if(mResult == null || mResult.isEmpty())
+        if (mResult == null || mResult.isEmpty())
             return 0;
 
-        return mResult.size()+1;
+        return mResult.size() + 1;
     }
 
     @Override
     public void onSwipe(int position) {
 
-        if (position<mResult.size()) {
+        if (position < mResult.size()) {
             mRealm.beginTransaction();
             mResult.get(position).deleteFromRealm();
             mRealm.commitTransaction();
@@ -125,9 +113,6 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         }
 
     }
-
-
-
     private static class DropHolder extends RecyclerView.ViewHolder {
 
         Realm mRealm;
@@ -135,10 +120,13 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
         Context mContext;
 
         TextView mTextWhat;
+        TextView mTextWhen;
+
 
         public DropHolder(View itemView, final MarkListener markListener, Realm realm, RealmResults realmResults) {
             super(itemView);
             mTextWhat = (TextView) itemView.findViewById(R.id.tv_what_row);
+            mTextWhen = (TextView) itemView.findViewById(R.id.tv_when_row);
             mContext = itemView.getContext();
             mRealm = realm;
             mRealmResults = realmResults;
@@ -154,19 +142,23 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         }
 
-        private void setWhat(String text){
+        private void setWhat(String text) {
             mTextWhat.setText(text);
         }
 
-        private void setBackground(boolean isCompleted){
+        private void setWhen(long date) {
+
+            mTextWhen.setText(DateUtils.getRelativeTimeSpanString(date, System.currentTimeMillis(),
+                    DateUtils.DAY_IN_MILLIS, DateUtils.FORMAT_ABBREV_ALL));
+        }
+
+        private void setBackground(boolean isCompleted) {
 
             Drawable background;
 
-            if(isCompleted){
+            if (isCompleted) {
                 background = mContext.getDrawable(R.color.row_bg_completed);
-            }
-
-            else{
+            } else {
                 background = mContext.getDrawable(R.drawable.row_drop_bg_color);
             }
 
@@ -175,14 +167,14 @@ public class AdapterClass extends RecyclerView.Adapter<RecyclerView.ViewHolder> 
 
         }
 
-        
+
     }
 
     private static class FooterHolder extends RecyclerView.ViewHolder {
 
         Button footerButton;
 
-       private FooterHolder(View itemView) {
+        private FooterHolder(View itemView) {
             super(itemView);
             footerButton = (Button) itemView.findViewById(R.id.btn_footer);
 

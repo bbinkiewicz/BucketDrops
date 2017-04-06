@@ -13,6 +13,8 @@ import android.widget.ImageButton;
 
 import com.example.pc.bucketdrops.beans.Drop;
 
+import java.util.Calendar;
+
 import io.realm.Realm;
 
 
@@ -70,13 +72,15 @@ public class DialogAdd extends DialogFragment implements View.OnClickListener {
         //get date from the DatePicker
 
         String goal = dialogInput.getText().toString();
-        Long now = System.currentTimeMillis();
+        long addTime = System.currentTimeMillis();
+        long when = calculateTime();
+
 
         //setting up a realm
 
 
         Realm realm = Realm.getDefaultInstance();
-        Drop drop = new Drop(now, goal, 1, false);
+        Drop drop = new Drop(addTime, goal, when, false);
 
 
 
@@ -87,5 +91,15 @@ public class DialogAdd extends DialogFragment implements View.OnClickListener {
         realm.close();
 
 
+    }
+
+    private long calculateTime(){
+        Calendar calendar = Calendar.getInstance();
+
+        calendar.set(Calendar.YEAR, datePicker.getYear());
+        calendar.set(Calendar.MONTH, datePicker.getMonth());
+        calendar.set(Calendar.DAY_OF_MONTH, datePicker.getDayOfMonth());
+
+        return calendar.getTimeInMillis();
     }
 }

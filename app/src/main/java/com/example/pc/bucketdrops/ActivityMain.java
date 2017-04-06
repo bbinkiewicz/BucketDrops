@@ -1,16 +1,20 @@
 package com.example.pc.bucketdrops;
 
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.Toolbar;
 import android.support.v7.widget.helper.ItemTouchHelper;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.Toolbar;
 
 import com.bumptech.glide.Glide;
 import com.example.pc.bucketdrops.adapters.AdapterClass;
 import com.example.pc.bucketdrops.adapters.Divider;
+import com.example.pc.bucketdrops.adapters.Filter;
 import com.example.pc.bucketdrops.adapters.MarkListener;
 import com.example.pc.bucketdrops.adapters.SimpleTouchCallback;
 import com.example.pc.bucketdrops.beans.Drop;
@@ -20,6 +24,7 @@ import com.example.pc.bucketdrops.widgets.DialogMark;
 import io.realm.Realm;
 import io.realm.RealmChangeListener;
 import io.realm.RealmResults;
+import io.realm.Sort;
 
 public class ActivityMain extends AppCompatActivity {
 
@@ -29,6 +34,7 @@ public class ActivityMain extends AppCompatActivity {
     AdapterClass adapter;
     View mEmptyView;
     SimpleTouchCallback mCallback;
+    Toolbar mToolbar;
 
     private MarkListener mMarkListener = new MarkListener() {
         @Override
@@ -57,15 +63,14 @@ public class ActivityMain extends AppCompatActivity {
 
 
 
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setActionBar(toolbar);
+        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(mToolbar);
         initBackgroundImage();
+
 
         //realm
         mRealm = Realm.getDefaultInstance();
@@ -78,7 +83,7 @@ public class ActivityMain extends AppCompatActivity {
         //recyclerView
 
         mRecycler = (BucketRecyclerView) findViewById(R.id.rv_drops);
-        mRecycler.hideIfEmpty(toolbar);
+        mRecycler.hideIfEmpty(mToolbar);
         mRecycler.showIfEmpty(mEmptyView);
         mRecycler.addItemDecoration(new Divider(this, LinearLayoutManager.VERTICAL));
 
@@ -92,6 +97,63 @@ public class ActivityMain extends AppCompatActivity {
         ItemTouchHelper helper = new ItemTouchHelper(mCallback);
         helper.attachToRecyclerView(mRecycler);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        super.onCreateOptionsMenu(menu);
+
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+
+        switch (id){
+
+            case R.id.action_add:
+                showDialogAdd(new View(this));
+                break;
+
+            case R.id.action_show_complete:
+                savePreference(Filter.COMPLETE);
+                mResult = mRealm.where(Drop.class).equalTo("isCompleted", true).findAllAsync();
+                break;
+
+            case R.id.action_show_incomplete:
+                savePreference(Filter.INCOMPLETE);
+                mResult = mRealm.where(Drop.class).equalTo("isCompleted", false).findAllAsync();
+                break;
+
+            case R.id.action_sort_ascending_date:
+                savePreference(Filter.LEAST_TIME_LEFT);
+                mResult = mRealm.where(Drop.class).findAllSortedAsync("when");
+                break;
+
+            case R.id.action_sort_descending_date:
+                savePreference(Filter.MOST_TIME_LEFT);
+                mResult = mRealm.where(Drop.class).findAllSortedAsync("when", Sort.DESCENDING);
+                break;
+        }
+
+        mResult.addChangeListener(callback);
+        return super.onOptionsItemSelected(item);
+    }
+
+    private void savePreference(int filterValue){
+        SharedPreferences pref = getPreferences(MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.putInt("filter", filterValue);
+        editor.apply();
+    }
+
+    private int loadPreference(){
+        SharedPreferences pref = getPreferences(MODE_PRIVATE);
+        int value = pref.getInt("filter", Filter.NONE);
+        return value;
     }
 
     @Override
