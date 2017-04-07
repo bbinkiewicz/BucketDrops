@@ -20,6 +20,18 @@
         android:id="@+id/toolbar"
         layout="@layout/toolbar"
         />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Nothing to show"
+        android:textSize="35sp"
+        android:gravity="center"
+        android:layout_gravity="center"
+        android:layout_below="@id/toolbar"
+        android:id="@+id/nothing_to_show"
+        android:visibility="invisible">
+
+    </TextView>
 
 
 

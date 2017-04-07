@@ -5,18 +5,25 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.TextView;
 
+import com.example.pc.bucketdrops.R;
+import com.example.pc.bucketdrops.beans.Drop;
 import com.example.pc.bucketdrops.extras.Util;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+import io.realm.Realm;
+import io.realm.RealmResults;
+
 
 public class BucketRecyclerView extends RecyclerView{
 
     private List<View> mEmptyViews = Collections.emptyList();
     private List<View> mNonEmptyViews = Collections.emptyList();
+    Realm mRealm;
 
     private AdapterDataObserver mObserver = new AdapterDataObserver() {
         @Override
@@ -49,28 +56,41 @@ public class BucketRecyclerView extends RecyclerView{
             toggleViews();
         }
 
-
-
     };
 
 
 
     private void toggleViews() {
 
+
+
         if (getAdapter() != null && !mNonEmptyViews.isEmpty() && !mEmptyViews.isEmpty()) {
+            mRealm = Realm.getDefaultInstance();
+
 
             //there is nothing in the adapter
-            if (getAdapter().getItemCount() == 0) {
+            if ((getAdapter().getItemCount() == 0) && mRealm.where(Drop.class).findAll().isEmpty()) {
 
                 //show all empty views
                 Util.showViews(mEmptyViews);
                 //hide Recycler View
                 setVisibility(View.GONE);
 
+
                 //hide all views which should not be visible when adapter is empty
                 Util.hideViews(mNonEmptyViews);
+            }
+                else if((getAdapter().getItemCount() == 0) && !(mRealm.where(Drop.class).findAll().isEmpty())){
+
+
+                Util.hideViews(mEmptyViews);
+                setVisibility(View.VISIBLE);
+                Util.showViews(mNonEmptyViews);
+
+
+                }
                 //there is something in the adapter
-            } else {
+             else {
                 //hide all views which should be visible only when there is no data in the adapter
                 Util.hideViews(mEmptyViews);
                 //show the Recycler

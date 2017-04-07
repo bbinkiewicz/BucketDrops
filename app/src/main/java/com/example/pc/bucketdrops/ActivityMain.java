@@ -10,11 +10,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.example.pc.bucketdrops.adapters.AdapterClass;
 import com.example.pc.bucketdrops.adapters.Divider;
-import com.example.pc.bucketdrops.adapters.Filter;
 import com.example.pc.bucketdrops.adapters.MarkListener;
 import com.example.pc.bucketdrops.adapters.SimpleTouchCallback;
 import com.example.pc.bucketdrops.beans.Drop;
@@ -68,6 +68,7 @@ public class ActivityMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        TextView nothingToShowTextView = (TextView) findViewById(R.id.nothing_to_show);
         setSupportActionBar(mToolbar);
         initBackgroundImage();
 
@@ -84,7 +85,7 @@ public class ActivityMain extends AppCompatActivity {
 
         mRecycler = (BucketRecyclerView) findViewById(R.id.rv_drops);
         mRecycler.hideIfEmpty(mToolbar);
-        mRecycler.showIfEmpty(mEmptyView);
+        mRecycler.showIfEmpty(mEmptyView,nothingToShowTextView);
         mRecycler.addItemDecoration(new Divider(this, LinearLayoutManager.VERTICAL));
 
             adapter = new AdapterClass(this, mRealm, mResult, mMarkListener);
@@ -96,6 +97,9 @@ public class ActivityMain extends AppCompatActivity {
         mCallback = new SimpleTouchCallback(adapter);
         ItemTouchHelper helper = new ItemTouchHelper(mCallback);
         helper.attachToRecyclerView(mRecycler);
+
+        //shared preferences
+        loadPreference();
 
     }
 
@@ -112,34 +116,15 @@ public class ActivityMain extends AppCompatActivity {
 
         int id = item.getItemId();
 
-        switch (id){
-
-            case R.id.action_add:
-                showDialogAdd(new View(this));
-                break;
-
-            case R.id.action_show_complete:
-                savePreference(Filter.COMPLETE);
-                mResult = mRealm.where(Drop.class).equalTo("isCompleted", true).findAllAsync();
-                break;
-
-            case R.id.action_show_incomplete:
-                savePreference(Filter.INCOMPLETE);
-                mResult = mRealm.where(Drop.class).equalTo("isCompleted", false).findAllAsync();
-                break;
-
-            case R.id.action_sort_ascending_date:
-                savePreference(Filter.LEAST_TIME_LEFT);
-                mResult = mRealm.where(Drop.class).findAllSortedAsync("when");
-                break;
-
-            case R.id.action_sort_descending_date:
-                savePreference(Filter.MOST_TIME_LEFT);
-                mResult = mRealm.where(Drop.class).findAllSortedAsync("when", Sort.DESCENDING);
-                break;
+        if(id == R.id.action_add){
+            showDialogAdd(new View(this));
         }
 
-        mResult.addChangeListener(callback);
+        else {
+            savePreference(id);
+            loadPreference();
+        }
+
         return super.onOptionsItemSelected(item);
     }
 
@@ -150,11 +135,33 @@ public class ActivityMain extends AppCompatActivity {
         editor.apply();
     }
 
-    private int loadPreference(){
+    private void loadPreference(){
+
+
         SharedPreferences pref = getPreferences(MODE_PRIVATE);
-        int value = pref.getInt("filter", Filter.NONE);
-        return value;
+        int value = pref.getInt("filter", 0);
+
+        switch(value) {
+            case R.id.action_show_complete:
+                mResult = mRealm.where(Drop.class).equalTo("isCompleted", true).findAllAsync();
+                break;
+
+            case R.id.action_show_incomplete:
+                mResult = mRealm.where(Drop.class).equalTo("isCompleted", false).findAllAsync();
+                break;
+
+            case R.id.action_sort_descending_date:
+                mResult = mRealm.where(Drop.class).findAllSortedAsync("when", Sort.DESCENDING);
+                break;
+
+            case R.id.action_sort_ascending_date:
+            default:
+                mResult = mRealm.where(Drop.class).findAllSortedAsync("when");
+                break;
+        }
+        mResult.addChangeListener(callback);
     }
+
 
     @Override
     protected void onStart() {
